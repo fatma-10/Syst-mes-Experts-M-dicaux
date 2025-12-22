@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systèmes Experts Médicaux</title>
+    
+    <!-- Vue.js 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+        
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        .mono {
+            font-family: 'Space Mono', monospace;
+        }
+        
+        .medical-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .diabetes-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        
+        .heart-gradient {
+            background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%);
+        }
+        
+        .stroke-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .tree-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tree-node:hover {
+            transform: scale(1.05);
+        }
+        
+        .highlight-path {
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+            animation: highlight 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes highlight {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app"></div>
+
+    <script type="module">
+        const { createApp } = Vue;
+
+        // Composant Home Page
+        const HomePage = {
+            template: `
+                <div class="min-h-screen medical-gradient p-4 md:p-6">
+                    <div class="max-w-7xl mx-auto">
+                        <!-- Header avec photo d'équipe -->
+                        <div class="text-center mb-10 md:mb-16 fade-in">
+                            <div class="relative mb-12">
+                                <!-- Photo circulaire de l'équipe avec fallback -->
+                                <div class="w-48 h-48 md:w-64 md:h-64 mx-auto rounded-full overflow-hidden border-8 border-white shadow-2xl bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 flex items-center justify-center">
+                                    <img v-if="teamImageExists" src="mfm.png" alt="Équipe MFM" class="w-full h-full object-cover" @error="teamImageExists = false">  
+                                    <div v-else class="text-white text-5xl md:text-7xl font-bold">MFM</div>
+                                </div>
+                                
+                                <!-- Présentation des membres -->
+                                <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-purple-200">
+                                    <p class="text-lg font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+                                        Présenté par Mariem, Maram & Fatma
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-center mb-6">
+                                <i data-lucide="stethoscope" class="w-14 h-14 md:w-16 md:h-16 text-white mr-4"></i>
+                                <h1 class="text-4xl md:text-5xl font-bold text-white">
+                                    Systèmes Experts Médicaux
+                                </h1>
+                            </div>
+                            <p class="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
+                                Trois systèmes experts basés sur des arbres de décision pour le diagnostic médical assisté par IA
+                            </p>
+                        </div>
+
+                        <!-- Systems Cards -->
+                        <div class="grid md:grid-cols-3 gap-6 md:gap-8 mb-12">
+                            <!-- System 1: Diabetes -->
+                            <div @click="navigate('diabetes')" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 transform hover:scale-[1.02] transition-all duration-300 cursor-pointer border-4 border-transparent hover:border-indigo-400 group slide-in">
+                                <div class="diabetes-gradient w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                                    <i data-lucide="activity" class="w-8 h-8 md:w-10 md:h-10 text-white"></i>
+                                </div>
+                                <h3 class="text-xl md:text-2xl font-bold text-gray-800 text-center mb-4">
+                                    Prédiction du Diabète
+                                </h3>
+                                <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
+                                    Analyse HbA1c, glycémie, IMC et facteurs de risque
+                                </p>
+                                <div class="flex items-center justify-center text-indigo-600 font-semibold group-hover:text-indigo-800 transition-colors">
+                                    Accéder <i data-lucide="chevron-right" class="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </div>
+
+                            <!-- System 2: Heart -->
+                            <div @click="navigate('heart')" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 transform hover:scale-[1.02] transition-all duration-300 cursor-pointer border-4 border-transparent hover:border-red-400 group slide-in" style="animation-delay: 0.1s;">
+                                <div class="heart-gradient w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                                    <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 text-white"></i>
+                                </div>
+                                <h3 class="text-xl md:text-2xl font-bold text-gray-800 text-center mb-4">
+                                    Diagnostic Cardiaque
+                                </h3>
+                                <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
+                                    13 paramètres cardiovasculaires pour diagnostic précis
+                                </p>
+                                <div class="flex items-center justify-center text-red-600 font-semibold group-hover:text-red-800 transition-colors">
+                                    Accéder <i data-lucide="chevron-right" class="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </div>
+
+                            <!-- System 3: Stroke Risk -->
+                            <div @click="navigate('stroke')" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 transform hover:scale-[1.02] transition-all duration-300 cursor-pointer border-4 border-transparent hover:border-green-400 group slide-in" style="animation-delay: 0.2s;">
+                                <div class="stroke-gradient w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                                    <i data-lucide="brain" class="w-8 h-8 md:w-10 md:h-10 text-white"></i>
+                                </div>
+                                <h3 class="text-xl md:text-2xl font-bold text-gray-800 text-center mb-4">
+                                    Risque d'AVC
+                                </h3>
+                                <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
+                                    15 règles expertes pour prédiction du risque
+                                </p>
+                                <div class="flex items-center justify-center text-green-600 font-semibold group-hover:text-green-800 transition-colors">
+                                    Accéder <i data-lucide="chevron-right" class="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Section -->
+                        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8 mb-8 fade-in" style="animation-delay: 0.3s;">
+                            <div class="flex items-center justify-center mb-6 md:mb-8">
+                                <i data-lucide="users" class="w-7 h-7 md:w-8 md:h-8 text-purple-600 mr-3"></i>
+                                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Notre Équipe</h2>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 md:gap-6">
+                                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-4 md:p-6 text-center border-2 border-purple-200 hover:border-purple-300 transition-colors transform hover:scale-105 duration-300">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg">
+                                        MZ
+                                    </div>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Mariem Zitouna</h3>
+                                    <p class="text-purple-600 font-semibold mb-1 text-sm md:text-base">Groupe 2</p>
+                                    <p class="text-gray-600 text-xs md:text-sm">Système Diabète</p>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-4 md:p-6 text-center border-2 border-red-200 hover:border-red-300 transition-colors transform hover:scale-105 duration-300">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg">
+                                        MO
+                                    </div>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Maram Okbi</h3>
+                                    <p class="text-red-600 font-semibold mb-1 text-sm md:text-base">Groupe 3</p>
+                                    <p class="text-gray-600 text-xs md:text-sm">Système Cardiaque</p>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-4 md:p-6 text-center border-2 border-green-200 hover:border-green-300 transition-colors transform hover:scale-105 duration-300">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg">
+                                        FA
+                                    </div>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Fatma Aamouri</h3>
+                                    <p class="text-green-600 font-semibold mb-1 text-sm md:text-base">Groupe 1</p>
+                                    <p class="text-gray-600 text-xs md:text-sm">Système Risque d'AVC</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="text-center text-white/90">
+                            <p class="text-sm">© 2024 - Projet Systèmes Experts Médicaux</p>
+                            <p class="text-xs mt-2">
+                                Utilisation pédagogique uniquement - Ne remplace pas un avis médical professionnel
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    teamImageExists: true
+                };
+            },
+            methods: {
+                navigate(page) {
+                    this.$emit('navigate', page);
+                }
+            },
+            mounted() {
+                lucide.createIcons();
+            }
+        };
+
+        // Composant Diabetes Expert
+        const DiabetesExpert = {
+            template: `
+                <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+                    <div class="max-w-7xl mx-auto">
+                        <button @click="$emit('back')" class="mb-6 inline-flex items-center text-indigo-600 hover:text-indigo-800 font-semibold transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                            Retour à l'accueil
+                        </button>
+
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border-2 border-indigo-200 fade-in">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center">
+                                    <div class="diabetes-gradient p-3 rounded-2xl mr-4">
+                                        <i data-lucide="activity" class="w-10 h-10 text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Système Expert - Diabète</h1>
+                                        <p class="text-gray-600">Analyse basée sur HbA1c, glycémie et facteurs de risque</p>
+                                    </div>
+                                </div>
+                                <button @click="showTree = !showTree"
+                                    class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition shadow-lg font-semibold w-full md:w-auto">
+                                    <i data-lucide="tree-pine" class="w-5 h-5"></i>
+                                    {{ showTree ? 'Masquer' : 'Voir' }} l'arbre de décision
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire et Résultats -->
+                        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                            <!-- Formulaire -->
+                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-indigo-200 slide-in">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-6">Données Patient</h2>
+                                
+                                <div class="space-y-6">
+                                    <!-- Contrôles du formulaire -->
+                                    <div v-for="field in formFields" :key="field.name">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            {{ field.label }}: <span class="text-indigo-600 font-bold">{{ formData[field.name] }}{{ field.unit }}</span>
+                                        </label>
+                                        <input type="range" :name="field.name" :min="field.min" :max="field.max" :step="field.step || 1"
+                                            v-model.number="formData[field.name]"
+                                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                        <div v-if="field.ranges" class="flex justify-between mt-1 text-xs text-gray-500">
+                                            <span v-for="range in field.ranges" :key="range.label" :class="range.color">{{ range.label }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bouton Analyse -->
+                                    <button @click="analyzeDiabetes"
+                                        class="w-full diabetes-gradient text-white font-bold py-4 rounded-xl hover:opacity-90 transform hover:scale-[1.02] transition-all shadow-xl text-lg">
+                                        🔍 Analyser et Prédire
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Résultats -->
+                            <div class="space-y-6">
+                                <template v-if="prediction">
+                                    <!-- Résultat Principal -->
+                                    <div :class="['rounded-2xl shadow-xl p-6 fade-in', prediction.risk_level === 'high' ? 'bg-red-50 border-4 border-red-300' : prediction.risk_level === 'medium' ? 'bg-orange-50 border-4 border-orange-300' : 'bg-green-50 border-4 border-green-300']">
+                                        <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 Résultat du Diagnostic</h2>
+                                        <div class="text-center py-4">
+                                            <div :class="['text-5xl md:text-6xl font-bold mb-4', prediction.prediction === 'Diabetes' ? 'text-red-600' : 'text-green-600']">
+                                                {{ prediction.prediction === 'Diabetes' ? 'DIABÈTE' : 'PAS DE DIABÈTE' }}
+                                            </div>
+                                            <div class="text-gray-700 text-xl mb-6">
+                                                Confiance: <span class="font-bold text-2xl">{{ prediction.confidence.toFixed(1) }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
+                                                <div :class="['h-full transition-all duration-1000', prediction.risk_level === 'high' ? 'bg-gradient-to-r from-red-500 to-red-600' : prediction.risk_level === 'medium' ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 'bg-gradient-to-r from-green-500 to-green-600']"
+                                                    :style="{ width: prediction.confidence + '%' }"></div>
+                                            </div>
+                                            <div class="text-center">
+                                                <span :class="['inline-block px-6 py-2 rounded-full text-sm font-bold', prediction.risk_level === 'high' ? 'bg-red-100 text-red-800 border border-red-300' : prediction.risk_level === 'medium' ? 'bg-orange-100 text-orange-800 border border-orange-300' : 'bg-green-100 text-green-800 border border-green-300']">
+                                                    {{ prediction.risk_level === 'high' ? '🔴 RISQUE ÉLEVÉ' : prediction.risk_level === 'medium' ? '🟠 RISQUE MOYEN' : '🟢 RISQUE FAIBLE' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Règles Appliquées -->
+                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-indigo-200 fade-in" style="animation-delay: 0.1s;">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-4">📚 Règles Appliquées</h3>
+                                        <div class="space-y-3">
+                                            <div v-for="(rule, i) in prediction.rules_applied" :key="i" class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border-l-4 border-indigo-500">
+                                                <div class="flex items-start">
+                                                    <span class="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                                                        {{ i + 1 }}
+                                                    </span>
+                                                    <p class="text-gray-700 font-medium">{{ rule }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recommandations -->
+                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-green-200 fade-in" style="animation-delay: 0.2s;">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Recommandations</h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="(rec, i) in prediction.recommendations" :key="i" class="flex items-start bg-green-50 p-3 rounded-lg">
+                                                <span class="text-green-600 text-xl mr-3">✓</span>
+                                                <span class="text-gray-700">{{ rec }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
+                                        <i data-lucide="activity" class="w-24 h-24 text-indigo-300 mb-6"></i>
+                                        <p class="text-gray-500 text-lg font-semibold mb-2">Données patient nécessaires</p>
+                                        <p class="text-gray-400">Remplissez le formulaire et cliquez sur "Analyser et Prédire"</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Arbre de Décision -->
+                        <div v-if="showTree" class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-green-300 fade-in">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-2xl font-bold text-gray-800">🌳 Arbre de Décision - Diabète</h2>
+                                <button @click="showTree = false"
+                                    class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                    Fermer
+                                </button>
+                            </div>
+                            
+                            <div class="overflow-x-auto bg-gradient-to-br from-gray-50 to-blue-50 p-4 rounded-xl border border-gray-200">
+                                <svg viewBox="0 0 1200 700" class="w-full h-auto min-h-[500px]">
+                                    <!-- Root Node -->
+                                    <rect x="525" y="20" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('root') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-orange-100 stroke-orange-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="600" y="45" text-anchor="middle" class="text-sm font-bold fill-gray-800">HbA1c Level</text>
+                                    <text x="600" y="65" text-anchor="middle" class="text-xs fill-gray-600">&gt; 6.5%</text>
+
+                                    <!-- Left Branch: HbA1c High -->
+                                    <line x1="600" y1="80" x2="300" y2="150" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="420" y="120" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="225" y="150" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('hba1c_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="300" y="175" text-anchor="middle" class="text-sm font-bold fill-red-700">DIABETES</text>
+                                    <text x="300" y="195" text-anchor="middle" class="text-xs fill-gray-600">Conf: 85-100%</text>
+
+                                    <!-- Right Branch: HbA1c Normal -->
+                                    <line x1="600" y1="80" x2="900" y2="150" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="780" y="120" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="825" y="150" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('hba1c_normal') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-blue-100 stroke-blue-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="900" y="175" text-anchor="middle" class="text-sm font-bold fill-gray-800">Glucose</text>
+                                    <text x="900" y="195" text-anchor="middle" class="text-xs fill-gray-600">&gt; 126 mg/dL</text>
+
+                                    <!-- Glucose High -->
+                                    <line x1="900" y1="210" x2="750" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="800" y="250" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="675" y="280" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('glucose_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="750" y="305" text-anchor="middle" class="text-sm font-bold fill-red-700">DIABETES</text>
+                                    <text x="750" y="325" text-anchor="middle" class="text-xs fill-gray-600">Conf: 80-95%</text>
+
+                                    <!-- Glucose Normal - Age Check -->
+                                    <line x1="900" y1="210" x2="1050" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="1000" y="250" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="975" y="280" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('glucose_normal') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-purple-100 stroke-purple-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1050" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">Age</text>
+                                    <text x="1050" y="325" text-anchor="middle" class="text-xs fill-gray-600">&lt;= 35 ans</text>
+
+                                    <!-- Age Young -->
+                                    <line x1="1050" y1="340" x2="950" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="980" y="380" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="875" y="410" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('age_young') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="950" y="435" text-anchor="middle" class="text-sm font-bold fill-green-700">NO DIABETES</text>
+                                    <text x="950" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 80-90%</text>
+
+                                    <!-- Age Old - Risk Calculation -->
+                                    <line x1="1050" y1="340" x2="1150" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="1120" y="380" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="1075" y="410" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('age_old') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-yellow-100 stroke-yellow-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1150" y="430" text-anchor="middle" class="text-sm font-bold fill-gray-800">Risk Calc</text>
+                                    <text x="1150" y="450" text-anchor="middle" class="text-xs fill-gray-600">Âge + IMC</text>
+
+                                    <!-- Risk Low -->
+                                    <line x1="1150" y1="470" x2="1050" y2="540" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="1080" y="510" class="text-xs fill-gray-600 font-semibold">Faible</text>
+                                    <rect x="975" y="540" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('risk_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1050" y="565" text-anchor="middle" class="text-sm font-bold fill-green-700">NO DIABETES</text>
+                                    <text x="1050" y="585" text-anchor="middle" class="text-xs fill-gray-600">Conf: 70-85%</text>
+
+                                    <!-- Risk High -->
+                                    <line x1="1150" y1="470" x2="1250" y2="540" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="1220" y="510" class="text-xs fill-gray-600 font-semibold">Élevé</text>
+                                    <rect x="1175" y="540" width="150" height="60" rx="8" 
+                                        :class="prediction?.treePath?.includes('risk_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-orange-100 stroke-orange-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1250" y="565" text-anchor="middle" class="text-sm font-bold fill-orange-700">SURVEILLANCE</text>
+                                    <text x="1250" y="585" text-anchor="middle" class="text-xs fill-gray-600">Conf: 50-70%</text>
+                                </svg>
+                                
+                                <div v-if="prediction" class="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl">
+                                    <p class="text-sm font-semibold text-yellow-800 flex items-center">
+                                        <span class="text-lg mr-2">🔍</span>
+                                        Chemin suivi (en jaune): <span class="ml-2 font-bold">{{ prediction.treePath.join(' → ') }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Avertissement -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-4 text-center">
+                            <p class="text-sm text-yellow-800 font-medium">
+                                ⚠️ Avertissement : Ce système est un outil pédagogique. Consultez un endocrinologue pour un diagnostic réel du diabète.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    showTree: false,
+                    formData: {
+                        age: 45,
+                        weight: 70,
+                        height: 170,
+                        HbA1c_level: 5.5,
+                        blood_glucose_level: 100
+                    },
+                    formFields: [
+                        { name: 'age', label: 'Âge', min: 18, max: 100, unit: ' ans' },
+                        { name: 'weight', label: 'Poids', min: 40, max: 150, unit: ' kg' },
+                        { name: 'height', label: 'Taille', min: 140, max: 210, unit: ' cm' },
+                        { 
+                            name: 'HbA1c_level', 
+                            label: 'HbA1c', 
+                            min: 3.5, 
+                            max: 9, 
+                            step: 0.1,
+                            unit: '%',
+                            ranges: [
+                                { label: 'Normal: <5.7', color: 'text-green-600' },
+                                { label: 'Pré-diabète: 5.7-6.4', color: 'text-orange-600' },
+                                { label: 'Diabète: ≥6.5', color: 'text-red-600' }
+                            ]
+                        },
+                        { 
+                            name: 'blood_glucose_level', 
+                            label: 'Glycémie', 
+                            min: 70, 
+                            max: 300,
+                            unit: ' mg/dL',
+                            ranges: [
+                                { label: 'Normal: <100', color: 'text-green-600' },
+                                { label: 'Pré-diabète: 100-125', color: 'text-orange-600' },
+                                { label: 'Diabète: ≥126', color: 'text-red-600' }
+                            ]
+                        }
+                    ],
+                    prediction: null
+                };
+            },
+            methods: {
+                calculateBMI(weight, height) {
+                    return (weight / ((height / 100) ** 2)).toFixed(1);
+                },
+                analyzeDiabetes() {
+                    const { HbA1c_level, blood_glucose_level, age } = this.formData;
+                    const bmi = parseFloat(this.calculateBMI(this.formData.weight, this.formData.height));
+                    
+                    let result = {
+                        prediction: 'No Diabetes',
+                        confidence: 0,
+                        risk_level: 'low',
+                        rules_applied: [],
+                        recommendations: [],
+                        treePath: []
+                    };
+
+                    // Rule 1: HbA1c > 6.5% → Direct Diabetes
+                    if (HbA1c_level > 6.5) {
+                        result.prediction = 'Diabetes';
+                        result.confidence = 85 + Math.min((HbA1c_level - 6.5) * 5, 15);
+                        result.risk_level = 'high';
+                        result.rules_applied.push('Règle 1: HbA1c > 6.5% → Diagnostic direct de diabète');
+                        result.treePath = ['root', 'hba1c_high', 'diabetes'];
+                        result.recommendations.push(
+                            'Consulter immédiatement un endocrinologue',
+                            'Débuter un suivi glycémique régulier',
+                            'Adopter un régime alimentaire adapté'
+                        );
+                    }
+                    // Rule 2: Glucose > 126 mg/dL → Diabetes
+                    else if (blood_glucose_level > 126) {
+                        result.prediction = 'Diabetes';
+                        result.confidence = 80 + Math.min((blood_glucose_level - 126) * 0.3, 15);
+                        result.risk_level = 'high';
+                        result.rules_applied.push('Règle 2: Glycémie > 126 mg/dL → Diagnostic de diabète');
+                        result.treePath = ['root', 'hba1c_normal', 'glucose_high', 'diabetes'];
+                        result.recommendations.push(
+                            'Consultation médicale urgente',
+                            'Tests de confirmation nécessaires',
+                            'Surveillance glycémique stricte'
+                        );
+                    }
+                    else {
+                        result.treePath.push('root', 'hba1c_normal', 'glucose_normal');
+                        
+                        // Rule 3: Age-based risk stratification
+                        if (age <= 35) {
+                            result.prediction = 'No Diabetes';
+                            result.confidence = 90 - (bmi > 25 ? 10 : 0);
+                            result.risk_level = 'low';
+                            result.rules_applied.push('Règle 3a: Âge ≤ 35 ans + valeurs normales → Pas de diabète');
+                            result.treePath.push('age_young', 'healthy');
+                            result.recommendations.push(
+                                'Maintenir un mode de vie sain',
+                                'Contrôle annuel recommandé',
+                                'Activité physique régulière'
+                            );
+                        } else {
+                            result.treePath.push('age_old', 'risk_calc');
+                            
+                            // Calculate cumulative risk
+                            const age_risk = Math.min((age - 35) / 45 * 40, 40);
+                            const bmi_risk = bmi > 25 ? Math.min((bmi - 25) * 2, 20) : 0;
+                            const hba1c_risk = HbA1c_level > 5.7 ? (HbA1c_level - 5.7) * 10 : 0;
+                            const total_risk = age_risk + bmi_risk + hba1c_risk;
+                            
+                            result.prediction = 'No Diabetes';
+                            result.confidence = Math.max(100 - total_risk, 50);
+                            
+                            if (total_risk > 40) {
+                                result.risk_level = 'medium';
+                                result.treePath.push('risk_high');
+                                result.rules_applied.push(
+                                    `Règle 3b: Âge > 35 + risque élevé (${total_risk.toFixed(0)}%) → Surveillance nécessaire`,
+                                    `Facteurs: Âge (${age_risk.toFixed(0)}%), IMC (${bmi_risk.toFixed(0)}%), HbA1c (${hba1c_risk.toFixed(0)}%)`
+                                );
+                                result.recommendations.push(
+                                    'Surveillance accrue recommandée',
+                                    'Modifier le mode de vie (alimentation + exercice)',
+                                    'Contrôle semestriel des paramètres',
+                                    'Consultation nutritionniste si nécessaire'
+                                );
+                            } else {
+                                result.risk_level = 'low';
+                                result.treePath.push('risk_low');
+                                result.rules_applied.push(
+                                    `Règle 3b: Âge > 35 + risque modéré (${total_risk.toFixed(0)}%)`,
+                                    `Facteurs: Âge (${age_risk.toFixed(0)}%), IMC (${bmi_risk.toFixed(0)}%), HbA1c (${hba1c_risk.toFixed(0)}%)`
+                                );
+                                result.recommendations.push(
+                                    'Continuer les bonnes habitudes',
+                                    'Contrôle bisannuel recommandé',
+                                    'Maintenir une alimentation équilibrée'
+                                );
+                            }
+                        }
+                    }
+
+                    this.prediction = result;
+                    
+                    // Reinitialize icons after DOM update
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                }
+            },
+            mounted() {
+                lucide.createIcons();
+            }
+        };
+
+        // Composant Heart Expert
+        const HeartExpert = {
+            template: `
+                <div class="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-purple-50 p-4">
+                    <div class="max-w-7xl mx-auto">
+                        <button @click="$emit('back')" class="mb-6 inline-flex items-center text-red-600 hover:text-red-800 font-semibold transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                            Retour à l'accueil
+                        </button>
+
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border-2 border-red-200 fade-in">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center">
+                                    <div class="heart-gradient p-3 rounded-2xl mr-4">
+                                        <i data-lucide="heart" class="w-10 h-10 text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Système Expert - Cardiaque</h1>
+                                        <p class="text-gray-600">13 paramètres cardiovasculaires pour diagnostic précis</p>
+                                    </div>
+                                </div>
+                                <button @click="showTree = !showTree"
+                                    class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition shadow-lg font-semibold w-full md:w-auto">
+                                    <i data-lucide="tree-pine" class="w-5 h-5"></i>
+                                    {{ showTree ? 'Masquer' : 'Voir' }} l'arbre de décision
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire et résultats -->
+                        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                            <!-- Formulaire -->
+                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-200 slide-in">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-6">Paramètres Cardiovasculaires</h2>
+                                
+                                <div class="space-y-6">
+                                    <div v-for="param in heartParams" :key="param.name">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            {{ param.label }}: <span class="text-red-600 font-bold">{{ heartData[param.name] }}{{ param.unit }}</span>
+                                        </label>
+                                        <input type="range" :name="param.name" :min="param.min" :max="param.max" :step="param.step || 1"
+                                            v-model.number="heartData[param.name]"
+                                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                                        <div v-if="param.info" class="mt-1 text-xs text-gray-500">{{ param.info }}</div>
+                                    </div>
+
+                                    <button @click="analyzeHeart"
+                                        class="w-full heart-gradient text-white font-bold py-4 rounded-xl hover:opacity-90 transform hover:scale-[1.02] transition-all shadow-xl text-lg">
+                                        🫀 Analyser le Risque Cardiaque
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Résultats -->
+                            <div class="space-y-6">
+                                <template v-if="heartResult">
+                                    <!-- Résultat Principal -->
+                                    <div :class="['rounded-2xl shadow-xl p-6 fade-in', heartResult.has_disease ? 'bg-red-50 border-4 border-red-300' : 'bg-green-50 border-4 border-green-300']">
+                                        <h2 class="text-2xl font-bold text-gray-800 mb-6">🫀 Diagnostic Cardiaque</h2>
+                                        <div class="text-center py-4">
+                                            <div :class="['text-4xl md:text-5xl font-bold mb-4', heartResult.has_disease ? 'text-red-600' : 'text-green-600']">
+                                                {{ heartResult.has_disease ? 'MALADIE CARDIAQUE DÉTECTÉE' : 'PAS DE MALADIE DÉTECTÉE' }}
+                                            </div>
+                                            <div class="text-gray-700 text-xl mb-6">
+                                                Score de risque: <span class="font-bold text-2xl">{{ heartResult.risk_score.toFixed(1) }}/100</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
+                                                <div :class="['h-full transition-all duration-1000', heartResult.has_disease ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-green-500 to-green-600']"
+                                                    :style="{ width: heartResult.risk_score + '%' }"></div>
+                                            </div>
+                                            <div class="text-center">
+                                                <span :class="['inline-block px-6 py-2 rounded-full text-sm font-bold', heartResult.risk_category === 'high' ? 'bg-red-100 text-red-800 border border-red-300' : heartResult.risk_category === 'medium' ? 'bg-orange-100 text-orange-800 border border-orange-300' : 'bg-green-100 text-green-800 border border-green-300']">
+                                                    {{ heartResult.risk_category === 'high' ? '🔴 RISQUE ÉLEVÉ' : heartResult.risk_category === 'medium' ? '🟠 RISQUE MOYEN' : '🟢 RISQUE FAIBLE' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Règles Appliquées -->
+                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-200 fade-in" style="animation-delay: 0.1s;">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-4">📚 Règles Appliquées</h3>
+                                        <div class="space-y-3">
+                                            <div v-for="(rule, i) in heartResult.rules_applied" :key="i" class="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border-l-4 border-red-500">
+                                                <div class="flex items-start">
+                                                    <span class="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-red-500 to-pink-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                                                        {{ i + 1 }}
+                                                    </span>
+                                                    <p class="text-gray-700 font-medium">{{ rule }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recommandations -->
+                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-blue-200 fade-in" style="animation-delay: 0.2s;">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Recommandations Médicales</h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="(rec, i) in heartResult.recommendations" :key="i" class="flex items-start bg-blue-50 p-3 rounded-lg">
+                                                <span class="text-blue-600 text-xl mr-3">✓</span>
+                                                <span class="text-gray-700">{{ rec }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
+                                        <i data-lucide="heart" class="w-24 h-24 text-red-300 mb-6 pulse"></i>
+                                        <p class="text-gray-500 text-lg font-semibold mb-2">Paramètres cardiaques nécessaires</p>
+                                        <p class="text-gray-400">Complétez les mesures et lancez l'analyse</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Arbre de Décision -->
+                        <div v-if="showTree" class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-green-300 fade-in">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-2xl font-bold text-gray-800">🌳 Arbre de Décision - Cardiaque</h2>
+                                <button @click="showTree = false"
+                                    class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                    Fermer
+                                </button>
+                            </div>
+                            
+                            <div class="overflow-x-auto bg-gradient-to-br from-gray-50 to-red-50 p-4 rounded-xl border border-gray-200">
+                                <svg viewBox="0 0 1300 800" class="w-full h-auto min-h-[500px]">
+                                    <!-- Root Node -->
+                                    <rect x="575" y="20" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('root') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-orange-100 stroke-orange-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="650" y="45" text-anchor="middle" class="text-sm font-bold fill-gray-800">Vaisseaux Colorés (ca)</text>
+                                    <text x="650" y="65" text-anchor="middle" class="text-xs fill-gray-600">≤ 0.5</text>
+
+                                    <!-- Left Branch: ca ≤ 0.5 -->
+                                    <line x1="650" y1="80" x2="400" y2="150" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="500" y="120" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="325" y="150" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('ca_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="400" y="175" text-anchor="middle" class="text-sm font-bold fill-gray-800">Anomalie (thal)</text>
+                                    <text x="400" y="195" text-anchor="middle" class="text-xs fill-gray-600">≤ 0.5</text>
+
+                                    <!-- Right Branch: ca > 0.5 -->
+                                    <line x1="650" y1="80" x2="900" y2="150" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="800" y="120" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="825" y="150" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('ca_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="900" y="175" text-anchor="middle" class="text-sm font-bold fill-gray-800">Douleur (cp)</text>
+                                    <text x="900" y="195" text-anchor="middle" class="text-xs fill-gray-600">≤ 0.5</text>
+
+                                    <!-- Branche ca_low - thal ≤ 0.5 -->
+                                    <line x1="400" y1="210" x2="300" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="340" y="250" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="225" y="280" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('thal_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="300" y="305" text-anchor="middle" class="text-sm font-bold fill-green-700">SAIN</text>
+                                    <text x="300" y="325" text-anchor="middle" class="text-xs fill-gray-600">Conf: 85-95%</text>
+
+                                    <!-- Branche ca_low - thal > 0.5 -->
+                                    <line x1="400" y1="210" x2="500" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="440" y="250" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="425" y="280" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('thal_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-blue-100 stroke-blue-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="500" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">Pression (trestbps)</text>
+                                    <text x="500" y="325" text-anchor="middle" class="text-xs fill-gray-600">≤ 129</text>
+
+                                    <!-- Branche ca_high - cp ≤ 0.5 -->
+                                    <line x1="900" y1="210" x2="800" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="840" y="250" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="725" y="280" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('cp_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="800" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">Dépression ST (oldpeak)</text>
+                                    <text x="800" y="325" text-anchor="middle" class="text-xs fill-gray-600">≤ 1.5</text>
+
+                                    <!-- Branche ca_high - cp > 0.5 -->
+                                    <line x1="900" y1="210" x2="1000" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="940" y="250" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="925" y="280" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('cp_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1000" y="305" text-anchor="middle" class="text-sm font-bold fill-red-700">MALADE</text>
+                                    <text x="1000" y="325" text-anchor="middle" class="text-xs fill-gray-600">Conf: 80-90%</text>
+
+                                    <!-- Branche thal_high - trestbps ≤ 129 -->
+                                    <line x1="500" y1="340" x2="400" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="440" y="380" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="325" y="410" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('trestbps_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="400" y="435" text-anchor="middle" class="text-sm font-bold fill-green-700">SAIN</text>
+                                    <text x="400" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 70-85%</text>
+
+                                    <!-- Branche thal_high - trestbps > 129 -->
+                                    <line x1="500" y1="340" x2="600" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="540" y="380" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="525" y="410" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('trestbps_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="600" y="435" text-anchor="middle" class="text-sm font-bold fill-red-700">MALADE</text>
+                                    <text x="600" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 75-85%</text>
+
+                                    <!-- Branche cp_low - oldpeak ≤ 1.5 -->
+                                    <line x1="800" y1="340" x2="700" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="740" y="380" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="625" y="410" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('oldpeak_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="700" y="435" text-anchor="middle" class="text-sm font-bold fill-green-700">SAIN</text>
+                                    <text x="700" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 65-80%</text>
+
+                                    <!-- Branche cp_low - oldpeak > 1.5 -->
+                                    <line x1="800" y1="340" x2="900" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="840" y="380" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="825" y="410" width="150" height="60" rx="8" 
+                                        :class="heartResult?.treePath?.includes('oldpeak_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="900" y="435" text-anchor="middle" class="text-sm font-bold fill-red-700">MALADE</text>
+                                    <text x="900" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 70-85%</text>
+                                </svg>
+                                
+                                <div v-if="heartResult && heartResult.treePath" class="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl">
+                                    <p class="text-sm font-semibold text-yellow-800 flex items-center">
+                                        <span class="text-lg mr-2">🔍</span>
+                                        Chemin suivi (en jaune): <span class="ml-2 font-bold">{{ heartResult.treePath.join(' → ') }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Avertissement -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-4 text-center">
+                            <p class="text-sm text-yellow-800 font-medium">
+                                ⚠️ Avertissement : Ce système est un outil pédagogique. Consultez un cardiologue pour un diagnostic cardiaque réel.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    showTree: false,
+                    heartData: {
+                        age: 50,
+                        sex: 1,
+                        cp: 2,
+                        trestbps: 130,
+                        chol: 240,
+                        fbs: 0,
+                        restecg: 0,
+                        thalach: 150,
+                        exang: 0,
+                        oldpeak: 1.5,
+                        slope: 1,
+                        ca: 0,
+                        thal: 2
+                    },
+                    heartParams: [
+                        { name: 'age', label: 'Âge', min: 20, max: 90, unit: ' ans' },
+                        { name: 'sex', label: 'Sexe (0=F, 1=M)', min: 0, max: 1, unit: '' },
+                        { name: 'cp', label: 'Type de douleur thoracique', min: 0, max: 3, unit: '', info: '0=Asymptomatique, 3=Angine typique' },
+                        { name: 'trestbps', label: 'Pression artérielle au repos', min: 90, max: 200, unit: ' mmHg' },
+                        { name: 'chol', label: 'Cholestérol', min: 100, max: 600, unit: ' mg/dL' },
+                        { name: 'fbs', label: 'Glycémie à jeun >120 mg/dL', min: 0, max: 1, unit: '' },
+                        { name: 'restecg', label: 'ECG au repos', min: 0, max: 2, unit: '' },
+                        { name: 'thalach', label: 'Fréquence cardiaque max', min: 60, max: 220, unit: ' bpm' },
+                        { name: 'exang', label: 'Angine induite par l\'exercice', min: 0, max: 1, unit: '' },
+                        { name: 'oldpeak', label: 'Dépression ST', min: 0, max: 6, step: 0.1, unit: '' },
+                        { name: 'slope', label: 'Pente du segment ST', min: 0, max: 2, unit: '' },
+                        { name: 'ca', label: 'Nb vaisseaux colorés', min: 0, max: 4, unit: '' },
+                        { name: 'thal', label: 'Thalassémie', min: 0, max: 3, unit: '' }
+                    ],
+                    heartResult: null
+                };
+            },
+            methods: {
+                analyzeHeart() {
+                    const data = this.heartData;
+                    let risk_score = 0;
+                    let risk_factors = [];
+                    let recommendations = [];
+                    let rules_applied = [];
+                    let treePath = ['root'];
+                    
+                    // Root rule: ca ≤ 0.5
+                    if (data.ca <= 2) { // Approximation for ca ≤ 0.5 in normalized scale
+                        treePath.push('ca_low');
+                        rules_applied.push('Règle 1: Nombre de vaisseaux colorés ≤ 2 → Patient plutôt sain');
+                        
+                        // thal ≤ 0.5 rule
+                        if (data.thal <= 1) {
+                            treePath.push('thal_low');
+                            rules_applied.push('Règle 2: Thalassémie ≤ 1 → Patient sain confirmé');
+                            risk_score = 15;
+                            recommendations.push('Aucune anomalie cardiaque détectée');
+                        } else {
+                            treePath.push('thal_high');
+                            rules_applied.push('Règle 3: Thalassémie > 1 → Vérification pression artérielle');
+                            
+                            // trestbps ≤ 129 rule
+                            if (data.trestbps <= 129) {
+                                treePath.push('trestbps_low');
+                                rules_applied.push('Règle 4: Pression artérielle ≤ 129 mmHg → Patient sain');
+                                risk_score = 25;
+                                risk_factors.push('Thalassémie détectée');
+                                recommendations.push('Surveillance de la thalassémie');
+                            } else {
+                                treePath.push('trestbps_high');
+                                rules_applied.push('Règle 5: Pression artérielle > 129 mmHg → Maladie cardiaque');
+                                risk_score = 65;
+                                risk_factors.push('Thalassémie détectée', `Hypertension (${data.trestbps} mmHg)`);
+                                recommendations.push('Consultation cardiologique', 'Contrôle de la pression artérielle');
+                            }
+                        }
+                    } else {
+                        treePath.push('ca_high');
+                        rules_applied.push('Règle 1: Nombre de vaisseaux colorés > 2 → Patient à risque élevé');
+                        
+                        // cp ≤ 0.5 rule
+                        if (data.cp <= 1) {
+                            treePath.push('cp_low');
+                            rules_applied.push('Règle 2: Douleur thoracique ≤ 1 → Vérification dépression ST');
+                            
+                            // oldpeak ≤ 1.5 rule
+                            if (data.oldpeak <= 1.5) {
+                                treePath.push('oldpeak_low');
+                                rules_applied.push('Règle 3: Dépression ST ≤ 1.5 → Patient sain');
+                                risk_score = 35;
+                                risk_factors.push('Vaisseaux colorés détectés');
+                                recommendations.push('Surveillance cardiaque régulière');
+                            } else {
+                                treePath.push('oldpeak_high');
+                                rules_applied.push('Règle 4: Dépression ST > 1.5 → Maladie cardiaque');
+                                risk_score = 75;
+                                risk_factors.push('Vaisseaux colorés détectés', `Dépression ST élevée (${data.oldpeak})`);
+                                recommendations.push('Consultation cardiologique urgente', 'Tests supplémentaires nécessaires');
+                            }
+                        } else {
+                            treePath.push('cp_high');
+                            rules_applied.push('Règle 2: Douleur thoracique > 1 → Maladie cardiaque confirmée');
+                            risk_score = 85;
+                            risk_factors.push('Vaisseaux colorés détectés', 'Douleur thoracique significative');
+                            recommendations.push('Consultation cardiologique urgente', 'ECG et tests d\'effort nécessaires', 'Traitement immédiat recommandé');
+                        }
+                    }
+                    
+                    // Additional factors calculation
+                    if (data.age > 60) {
+                        risk_score += 10;
+                        risk_factors.push(`Âge avancé (${data.age} ans)`);
+                    }
+                    
+                    if (data.chol > 240) {
+                        risk_score += 10;
+                        risk_factors.push(`Cholestérol élevé (${data.chol} mg/dL)`);
+                        recommendations.push('Régime pour réduire le cholestérol');
+                    }
+                    
+                    if (data.exang === 1) {
+                        risk_score += 15;
+                        risk_factors.push('Angine induite par l\'exercice');
+                    }
+                    
+                    // Cap risk score at 100
+                    risk_score = Math.min(risk_score, 100);
+                    
+                    // Determine disease presence and category
+                    const has_disease = risk_score > 50;
+                    let risk_category = 'low';
+                    if (risk_score > 70) {
+                        risk_category = 'high';
+                    } else if (risk_score > 40) {
+                        risk_category = 'medium';
+                    }
+                    
+                    // Add general recommendations
+                    if (has_disease) {
+                        recommendations.push('Consultation cardiologique urgente recommandée', 'ECG et tests d\'effort nécessaires', 'Surveillance médicale régulière');
+                    } else if (risk_category === 'medium') {
+                        recommendations.push('Consultation cardiologique pour bilan', 'Adopter un mode de vie sain', 'Exercice physique modéré régulier');
+                    } else {
+                        recommendations.push('Maintenir un mode de vie sain', 'Contrôle annuel des facteurs de risque', 'Activité physique régulière');
+                    }
+                    
+                    if (risk_factors.length === 0) {
+                        risk_factors.push('Aucun facteur de risque majeur détecté');
+                    }
+                    
+                    this.heartResult = {
+                        has_disease,
+                        risk_score,
+                        risk_category,
+                        risk_factors,
+                        recommendations,
+                        rules_applied,
+                        treePath
+                    };
+                    
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                }
+            },
+            mounted() {
+                lucide.createIcons();
+            }
+        };
+
+        // Composant Stroke Risk Expert
+        const StrokeExpert = {
+            template: `
+                <div class="min-h-screen bg-gradient-to-br from-green-50 via-teal-50 to-emerald-50 p-4">
+                    <div class="max-w-7xl mx-auto">
+                        <button @click="$emit('back')" class="mb-6 inline-flex items-center text-green-600 hover:text-green-800 font-semibold transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                            Retour à l'accueil
+                        </button>
+
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border-2 border-green-200 fade-in">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center">
+                                    <div class="stroke-gradient p-3 rounded-2xl mr-4">
+                                        <i data-lucide="brain" class="w-10 h-10 text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Système Expert - Risque d'AVC</h1>
+                                        <p class="text-gray-600">15 règles expertes basées sur l'arbre de décision</p>
+                                    </div>
+                                </div>
+                                <button @click="showTree = !showTree"
+                                    class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition shadow-lg font-semibold w-full md:w-auto">
+                                    <i data-lucide="tree-pine" class="w-5 h-5"></i>
+                                    {{ showTree ? 'Masquer' : 'Voir' }} l'arbre de décision
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire et résultats -->
+                        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                            <!-- Formulaire -->
+                            <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-green-200 slide-in">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-6">Paramètres du Patient</h2>
+                                <div class="space-y-6">
+                                    <div v-for="param in strokeParams" :key="param.name">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            {{ param.label }}: <span class="text-green-600 font-bold">{{ strokeData[param.name] }}{{ param.unit }}</span>
+                                        </label>
+                                        <input type="range" :name="param.name" :min="param.min" :max="param.max" :step="param.step || 1"
+                                            v-model.number="strokeData[param.name]" 
+                                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+                                        <div v-if="param.info" class="mt-1 text-xs text-gray-500">{{ param.info }}</div>
+                                    </div>
+                                    <button @click="analyzeStroke"
+                                        class="w-full stroke-gradient text-white font-bold py-4 rounded-xl hover:opacity-90 transform hover:scale-[1.02] transition-all shadow-xl text-lg">
+                                        🧠 Évaluer le Risque d'AVC
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Résultats -->
+                            <div class="space-y-6">
+                                <template v-if="strokeResult">
+                                    <!-- Résultat Principal -->
+                                    <div :class="['rounded-2xl shadow-xl p-6 fade-in', strokeResult.prediction === 'Yes' ? 'bg-red-50 border-4 border-red-300' : 'bg-green-50 border-4 border-green-300']">
+                                        <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 Évaluation du Risque d'AVC</h2>
+                                        <div class="text-center py-4">
+                                            <div :class="['text-4xl md:text-5xl font-bold mb-4', strokeResult.prediction === 'Yes' ? 'text-red-600' : 'text-green-600']">
+                                                {{ strokeResult.prediction === 'Yes' ? 'RISQUE ÉLEVÉ' : 'RISQUE FAIBLE' }}
+                                            </div>
+                                            <div class="text-gray-700 text-xl mb-6">
+                                                Confiance: <span class="font-bold text-2xl">{{ strokeResult.confidence }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
+                                                <div :class="['h-full transition-all duration-1000', strokeResult.prediction === 'Yes' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-green-500 to-green-600']"
+                                                    :style="{ width: strokeResult.confidence + '%' }"></div>
+                                            </div>
+                                            <div class="text-center">
+                                                <span :class="['inline-block px-6 py-2 rounded-full text-sm font-bold', strokeResult.prediction === 'Yes' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-green-100 text-green-800 border border-green-300']">
+                                                    {{ strokeResult.prediction === 'Yes' ? '🔴 CONSULTER UN NEUROLOGUE' : '🟢 SURVEILLANCE STANDARD' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Règles Appliquées -->
+                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-green-200 fade-in" style="animation-delay: 0.1s;">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-4">📚 Règles Appliquées</h3>
+                                        <div class="space-y-3">
+                                            <div v-for="(rule, i) in strokeResult.rules_applied" :key="i" class="bg-gradient-to-r from-green-50 to-teal-50 p-4 rounded-lg border-l-4 border-green-500">
+                                                <div class="flex items-start">
+                                                    <span class="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                                                        {{ i + 1 }}
+                                                    </span>
+                                                    <p class="text-gray-700 font-medium">{{ rule }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recommandations -->
+                                    <div class="bg-white rounded-2xl shadow-xl p-6 border-2 border-blue-200 fade-in" style="animation-delay: 0.2s;">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Recommandations</h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="(rec, i) in strokeResult.recommendations" :key="i" class="flex items-start bg-blue-50 p-3 rounded-lg">
+                                                <span class="text-blue-600 text-xl mr-3">✓</span>
+                                                <span class="text-gray-700">{{ rec }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
+                                        <i data-lucide="brain" class="w-24 h-24 text-green-300 mb-6 pulse"></i>
+                                        <p class="text-gray-500 text-lg font-semibold mb-2">Paramètres nécessaires</p>
+                                        <p class="text-gray-400">Ajustez les valeurs et lancez l'analyse</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Arbre de Décision -->
+                        <div v-if="showTree" class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-green-300 fade-in">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-2xl font-bold text-gray-800">🌳 Arbre de Décision - Risque d'AVC</h2>
+                                <button @click="showTree = false"
+                                    class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                    Fermer
+                                </button>
+                            </div>
+                            
+                            <div class="overflow-x-auto bg-gradient-to-br from-gray-50 to-green-50 p-4 rounded-xl border border-gray-200">
+                                <svg viewBox="0 0 1400 900" class="w-full h-auto min-h-[500px]">
+                                    <!-- Root Node -->
+                                    <rect x="625" y="20" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('root') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-orange-100 stroke-orange-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="700" y="45" text-anchor="middle" class="text-sm font-bold fill-gray-800">Tension Normale</text>
+                                    <text x="700" y="65" text-anchor="middle" class="text-xs fill-gray-600">BP_History_Normal ≤ 0.5</text>
+
+                                    <!-- Left Branch: BP_History_Normal ≤ 0.5 -->
+                                    <line x1="700" y1="80" x2="450" y2="150" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="550" y="120" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="375" y="150" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('bp_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="450" y="175" text-anchor="middle" class="text-sm font-bold fill-gray-800">Préhypertension</text>
+                                    <text x="450" y="195" text-anchor="middle" class="text-xs fill-gray-600">BP_History_Prehypertension ≤ 0.5</text>
+
+                                    <!-- Right Branch: BP_History_Normal > 0.5 -->
+                                    <line x1="700" y1="80" x2="950" y2="150" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="850" y="120" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="875" y="150" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('bp_normal') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="950" y="175" text-anchor="middle" class="text-sm font-bold fill-gray-800">Score de Stress</text>
+                                    <text x="950" y="195" text-anchor="middle" class="text-xs fill-gray-600">Stress_Score ≤ 0.814</text>
+
+                                    <!-- Branche bp_low - préhypertension ≤ 0.5 -->
+                                    <line x1="450" y1="210" x2="300" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="360" y="250" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="225" y="280" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('prehypertension_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-blue-100 stroke-blue-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="300" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">Âge</text>
+                                    <text x="300" y="325" text-anchor="middle" class="text-xs fill-gray-600">Age ≤ -0.047</text>
+
+                                    <!-- Branche bp_low - préhypertension > 0.5 -->
+                                    <line x1="450" y1="210" x2="600" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="510" y="250" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="525" y="280" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('prehypertension_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-purple-100 stroke-purple-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="600" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">Antécédents</text>
+                                    <text x="600" y="325" text-anchor="middle" class="text-xs fill-gray-600">Family_History_Yes ≤ 0.5</text>
+
+                                    <!-- Branche bp_normal - stress ≤ 0.814 -->
+                                    <line x1="950" y1="210" x2="800" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="860" y="250" class="text-xs fill-gray-600 font-semibold">Oui</text>
+                                    <rect x="725" y="280" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('stress_low') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="800" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">IMC</text>
+                                    <text x="800" y="325" text-anchor="middle" class="text-xs fill-gray-600">BMI ≤ 1.042</text>
+
+                                    <!-- Branche bp_normal - stress > 0.814 -->
+                                    <line x1="950" y1="210" x2="1100" y2="280" class="stroke-gray-500" stroke-width="2"/>
+                                    <text x="1020" y="250" class="text-xs fill-gray-600 font-semibold">Non</text>
+                                    <rect x="1025" y="280" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('stress_high') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1100" y="305" text-anchor="middle" class="text-sm font-bold fill-gray-800">Âge</text>
+                                    <text x="1100" y="325" text-anchor="middle" class="text-xs fill-gray-600">Age ≤ -0.303</text>
+
+                                    <!-- Feuilles terminales -->
+                                    <!-- Feuille 1: bp_low + préhypertension_low + age ≤ -0.047 -->
+                                    <line x1="300" y1="340" x2="200" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="125" y="410" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf1') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="200" y="435" text-anchor="middle" class="text-sm font-bold fill-red-700">RISQUE ÉLEVÉ</text>
+                                    <text x="200" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 60%</text>
+
+                                    <!-- Feuille 2: bp_low + préhypertension_low + age > -0.047 -->
+                                    <line x1="300" y1="340" x2="400" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="325" y="410" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf2') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="400" y="435" text-anchor="middle" class="text-sm font-bold fill-green-700">RISQUE FAIBLE</text>
+                                    <text x="400" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 40%</text>
+
+                                    <!-- Feuille 3: bp_low + préhypertension_high + antécédents ≤ 0.5 -->
+                                    <line x1="600" y1="340" x2="500" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="425" y="410" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf3') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="500" y="435" text-anchor="middle" class="text-sm font-bold fill-red-700">RISQUE ÉLEVÉ</text>
+                                    <text x="500" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 140%</text>
+
+                                    <!-- Feuille 4: bp_low + préhypertension_high + antécédents > 0.5 -->
+                                    <line x1="600" y1="340" x2="700" y2="410" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="625" y="410" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf4') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="700" y="435" text-anchor="middle" class="text-sm font-bold fill-green-700">RISQUE FAIBLE</text>
+                                    <text x="700" y="455" text-anchor="middle" class="text-xs fill-gray-600">Conf: 40%</text>
+
+                                    <!-- Feuille 5: bp_normal + stress_low + IMC ≤ 1.042 -->
+                                    <line x1="800" y1="340" x2="700" y2="500" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="625" y="500" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf5') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="700" y="525" text-anchor="middle" class="text-sm font-bold fill-green-700">RISQUE FAIBLE</text>
+                                    <text x="700" y="545" text-anchor="middle" class="text-xs fill-gray-600">Conf: 30%</text>
+
+                                    <!-- Feuille 6: bp_normal + stress_high + age ≤ -0.303 -->
+                                    <line x1="1100" y1="340" x2="1000" y2="500" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="925" y="500" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf6') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-green-100 stroke-green-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1000" y="525" text-anchor="middle" class="text-sm font-bold fill-green-700">RISQUE FAIBLE</text>
+                                    <text x="1000" y="545" text-anchor="middle" class="text-xs fill-gray-600">Conf: 140%</text>
+
+                                    <!-- Feuille 7: bp_normal + stress_high + age > -0.303 -->
+                                    <line x1="1100" y1="340" x2="1200" y2="500" class="stroke-gray-500" stroke-width="2"/>
+                                    <rect x="1125" y="500" width="150" height="60" rx="8" 
+                                        :class="strokeResult?.treePath?.includes('leaf7') ? 'fill-yellow-300 stroke-yellow-600 highlight-path' : 'fill-red-100 stroke-red-400'" 
+                                        stroke-width="3" class="tree-node"/>
+                                    <text x="1200" y="525" text-anchor="middle" class="text-sm font-bold fill-red-700">RISQUE ÉLEVÉ</text>
+                                    <text x="1200" y="545" text-anchor="middle" class="text-xs fill-gray-600">Conf: 140%</text>
+                                </svg>
+                                
+                                <div v-if="strokeResult && strokeResult.treePath" class="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl">
+                                    <p class="text-sm font-semibold text-yellow-800 flex items-center">
+                                        <span class="text-lg mr-2">🔍</span>
+                                        Chemin suivi (en jaune): <span class="ml-2 font-bold">{{ strokeResult.treePath.join(' → ') }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Avertissement -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-4 text-center">
+                            <p class="text-sm text-yellow-800 font-medium">
+                                ⚠️ Avertissement : Ce système est un outil pédagogique. Consultez un neurologue pour une évaluation réelle du risque d'AVC.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    showTree: false,
+                    strokeData: {
+                        bp_history_normal: 0,
+                        bp_history_prehypertension: 0,
+                        age: 45,
+                        family_history_yes: 0,
+                        sleep_duration: 7,
+                        stress_score: 3,
+                        bmi: 25,
+                        smoking_status_smoker: 0
+                    },
+                    strokeParams: [
+                        { name: 'bp_history_normal', label: 'Tension artérielle normale', min: 0, max: 1, step: 1, info: '0=Non, 1=Oui', unit: '' },
+                        { name: 'bp_history_prehypertension', label: 'Préhypertension', min: 0, max: 1, step: 1, info: '0=Non, 1=Oui', unit: '' },
+                        { name: 'age', label: 'Âge', min: 18, max: 100, step: 1, info: 'Âge en années', unit: ' ans' },
+                        { name: 'family_history_yes', label: 'Antécédents familiaux', min: 0, max: 1, step: 1, info: '0=Non, 1=Oui', unit: '' },
+                        { name: 'sleep_duration', label: 'Durée du sommeil', min: 4, max: 12, step: 0.5, info: 'Heures par nuit', unit: ' h' },
+                        { name: 'stress_score', label: 'Score de stress', min: 0, max: 10, step: 1, info: '0=Faible, 10=Élevé', unit: '/10' },
+                        { name: 'bmi', label: 'IMC', min: 15, max: 40, step: 0.5, info: 'Indice de masse corporelle', unit: ' kg/m²' },
+                        { name: 'smoking_status_smoker', label: 'Tabagisme', min: 0, max: 1, step: 1, info: '0=Non-fumeur, 1=Fumeur', unit: '' }
+                    ],
+                    strokeResult: null
+                };
+            },
+            methods: {
+                normalizeAge(age) {
+                    // Normalize age to -1 to 1 scale
+                    return ((age - 18) / (100 - 18)) * 2 - 1;
+                },
+                normalizeSleep(sleep) {
+                    // Normalize sleep to -2 to 2 scale
+                    return ((sleep - 4) / (12 - 4)) * 4 - 2;
+                },
+                normalizeBMI(bmi) {
+                    // Normalize BMI to 0 to 2 scale
+                    return ((bmi - 15) / (40 - 15)) * 2;
+                },
+                analyzeStroke() {
+                    const d = this.strokeData;
+                    let rules_applied = [];
+                    let treePath = ['root'];
+                    let prediction = 'No';
+                    let confidence = 0;
+                    let recommendations = [];
+                    
+                    // Rule 1: BP_History_Normal <= 0.5
+                    if (d.bp_history_normal === 0) {
+                        treePath.push('bp_low');
+                        rules_applied.push('Règle 1: Tension artérielle anormale → Risque élevé');
+                        
+                        // Rule 2: BP_History_Prehypertension <= 0.5
+                        if (d.bp_history_prehypertension === 0) {
+                            treePath.push('prehypertension_low');
+                            rules_applied.push('Règle 2: Pas de préhypertension → Analyse de l\'âge');
+                            
+                            // Normalize age for comparison
+                            const normalizedAge = this.normalizeAge(d.age);
+                            
+                            // Rule 3: Age <= -0.047 (approx 35 ans)
+                            if (normalizedAge <= this.normalizeAge(35)) {
+                                treePath.push('age_low', 'leaf1');
+                                rules_applied.push('Règle 3: Âge ≤ 35 ans → Risque élevé d\'AVC');
+                                prediction = 'Yes';
+                                confidence = 60;
+                                recommendations.push('Consultation neurologique recommandée', 'Surveillance de la tension artérielle', 'Contrôle régulier des facteurs de risque');
+                            } else {
+                                treePath.push('age_high', 'leaf2');
+                                rules_applied.push('Règle 3: Âge > 35 ans → Risque faible d\'AVC');
+                                prediction = 'No';
+                                confidence = 40;
+                                recommendations.push('Maintenir un mode de vie sain', 'Contrôle annuel recommandé');
+                            }
+                        } else {
+                            treePath.push('prehypertension_high');
+                            rules_applied.push('Règle 2: Préhypertension détectée → Vérification antécédents familiaux');
+                            
+                            // Rule 4: Family_History_Yes <= 0.5
+                            if (d.family_history_yes === 0) {
+                                treePath.push('family_history_low', 'leaf3');
+                                rules_applied.push('Règle 4: Pas d\'antécédents familiaux → Risque élevé d\'AVC');
+                                prediction = 'Yes';
+                                confidence = 140; // Note: confidence > 100 indique risque très élevé
+                                recommendations.push('Consultation neurologique urgente', 'Surveillance intensive', 'Modification du mode de vie nécessaire');
+                            } else {
+                                treePath.push('family_history_high', 'leaf4');
+                                rules_applied.push('Règle 4: Antécédents familiaux présents → Risque faible d\'AVC');
+                                prediction = 'No';
+                                confidence = 40;
+                                recommendations.push('Surveillance régulière', 'Contrôle des facteurs de risque héréditaires');
+                            }
+                        }
+                    } else {
+                        treePath.push('bp_normal');
+                        rules_applied.push('Règle 1: Tension artérielle normale → Risque faible initial');
+                        
+                        // Normalize stress score for comparison
+                        const normalizedStress = d.stress_score / 10 * 2; // Scale to 0-2
+                        
+                        // Rule 5: Stress_Score <= 0.814 (approx 4/10)
+                        if (normalizedStress <= 0.814) {
+                            treePath.push('stress_low');
+                            rules_applied.push('Règle 5: Stress faible → Analyse de l\'IMC');
+                            
+                            // Normalize BMI for comparison
+                            const normalizedBMI = this.normalizeBMI(d.bmi);
+                            
+                            // Rule 6: BMI <= 1.042 (approx 28 kg/m²)
+                            if (normalizedBMI <= 1.042) {
+                                treePath.push('bmi_low', 'leaf5');
+                                rules_applied.push('Règle 6: IMC normal → Risque faible d\'AVC');
+                                prediction = 'No';
+                                confidence = 30;
+                                recommendations.push('Continuer les bonnes habitudes', 'Contrôle annuel standard');
+                            } else {
+                                treePath.push('bmi_high');
+                                // Additional rule would go here for complete tree
+                                rules_applied.push('Règle 6: IMC élevé → Analyse supplémentaire nécessaire');
+                                prediction = 'No';
+                                confidence = 50;
+                                recommendations.push('Perte de poids recommandée', 'Surveillance de l\'IMC');
+                            }
+                        } else {
+                            treePath.push('stress_high');
+                            rules_applied.push('Règle 5: Stress élevé → Analyse de l\'âge');
+                            
+                            // Normalize age for comparison
+                            const normalizedAge = this.normalizeAge(d.age);
+                            
+                            // Rule 7: Age <= -0.303 (approx 25 ans)
+                            if (normalizedAge <= this.normalizeAge(25)) {
+                                treePath.push('age_very_low', 'leaf6');
+                                rules_applied.push('Règle 7: Âge ≤ 25 ans → Risque faible d\'AVC');
+                                prediction = 'No';
+                                confidence = 140;
+                                recommendations.push('Gestion du stress recommandée', 'Contrôle régulier');
+                            } else {
+                                treePath.push('age_not_very_low', 'leaf7');
+                                rules_applied.push('Règle 7: Âge > 25 ans → Risque élevé d\'AVC');
+                                prediction = 'Yes';
+                                confidence = 140;
+                                recommendations.push('Consultation neurologique nécessaire', 'Gestion du stress impérative', 'Surveillance intensive');
+                            }
+                        }
+                    }
+                    
+                    // Additional recommendations based on other factors
+                    if (d.smoking_status_smoker === 1) {
+                        recommendations.push('Arrêt du tabac fortement recommandé');
+                        confidence += 20;
+                    }
+                    
+                    if (d.sleep_duration < 6) {
+                        recommendations.push('Amélioration de la durée du sommeil nécessaire');
+                        confidence += 10;
+                    }
+                    
+                    // Cap confidence at 100%
+                    confidence = Math.min(confidence, 100);
+                    
+                    this.strokeResult = {
+                        prediction,
+                        confidence,
+                        rules_applied,
+                        recommendations,
+                        treePath
+                    };
+                    
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                }
+            },
+            mounted() {
+                lucide.createIcons();
+            }
+        };
+
+        // Application principale
+        const App = {
+            template: `
+                <div>
+                    <HomePage v-if="currentPage === 'home'" @navigate="changePage" />
+                    <DiabetesExpert v-else-if="currentPage === 'diabetes'" @back="changePage('home')" />
+                    <HeartExpert v-else-if="currentPage === 'heart'" @back="changePage('home')" />
+                    <StrokeExpert v-else-if="currentPage === 'stroke'" @back="changePage('home')" />
+                </div>
+            `,
+            data() {
+                return {
+                    currentPage: 'home'
+                };
+            },
+            methods: {
+                changePage(page) {
+                    this.currentPage = page;
+                    window.scrollTo(0, 0);
+                    
+                    // Reinitialize icons after page change
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                }
+            },
+            mounted() {
+                lucide.createIcons();
+            }
+        };
+
+        // Créer et monter l'application
+        const app = createApp(App);
+        app.component('HomePage', HomePage);
+        app.component('DiabetesExpert', DiabetesExpert);
+        app.component('HeartExpert', HeartExpert);
+        app.component('StrokeExpert', StrokeExpert);
+        app.mount('#app');
+    </script>
+</body>
+</html>
